@@ -1,2 +1,53 @@
 <!doctype html>
-<html lang="th"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><title>AIS | TikTok Callback</title><style>body{background:#071827;color:#edfaff;font:16px system-ui;margin:0;display:grid;min-height:100vh;place-items:center}main{max-width:420px;margin:20px;padding:28px;border:1px solid #20cbd4;border-radius:20px}h1{color:#20dce4}p{line-height:1.6}</style></head><body><main><h1>AIS</h1><h2>เชื่อมต่อ TikTok</h2><p id="status">กำลังตรวจสอบการตอบกลับ...</p><p>Affiliate Intelligence Studio · Sandbox</p></main><script>const q=new URLSearchParams(location.search);const code=q.get('code'),state=q.get('state'),error=q.get('error');history.replaceState(null,'',location.pathname);document.getElementById('status').textContent=error?'TikTok ไม่อนุญาตหรือยกเลิกการเชื่อมต่อ':code&&state?'ได้รับข้อมูลตอบกลับจาก TikTok แล้ว แต่ยังไม่ได้เชื่อมต่อบัญชี: ต้องติดตั้งระบบรับ callback ฝั่ง AIS ก่อน':'หน้านี้พร้อมสำหรับทดสอบ Redirect URI แต่ยังไม่มีข้อมูลตอบกลับจาก TikTok';</script></body></html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex,nofollow">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; base-uri 'none'; object-src 'none'">
+<title>AIS | TikTok Callback</title>
+<style>
+*{box-sizing:border-box}body{background:#0c1826;color:#edf7ff;font:16px system-ui,sans-serif;margin:0;display:grid;min-height:100vh;place-items:center}main{width:min(92%,480px);padding:28px;border:1px solid #4dcbd5;border-radius:20px;background:#101f30}h1{color:#61dce4;margin-top:0}h2{font-size:1.4rem}p{line-height:1.65}small{color:#a8bdce;line-height:1.5;display:block;margin-top:20px}a,button{display:block;width:100%;padding:14px;text-align:center;border-radius:10px;border:1px solid #65d9e1;background:#174751;color:#e7fdff;text-decoration:none;font:inherit;font-weight:600;cursor:pointer}button:disabled{opacity:.55} [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>AIS</h1><h2>เชื่อมต่อ TikTok</h2>
+<p id="status" role="status">กำลังตรวจสอบการตอบกลับ...</p>
+<form id="handoff" method="post" action="https://script.google.com/macros/s/AKfycbzazVdETa_1O0_o_GGAgP53H7ECrW445D2uFRNdjEBdFZMTtt6MJyma-xErriyfjqUO5Q/exec" hidden autocomplete="off">
+<input type="hidden" name="ais_action" value="tiktok_oauth_callback_v1">
+<input type="hidden" name="code" id="auth-code">
+<input type="hidden" name="state" id="auth-state">
+<button id="continue" type="submit">ดำเนินการต่อใน AIS</button>
+</form>
+<a id="return" href="https://script.google.com/macros/s/AKfycbzazVdETa_1O0_o_GGAgP53H7ECrW445D2uFRNdjEBdFZMTtt6MJyma-xErriyfjqUO5Q/exec" rel="noreferrer">กลับไปยัง AIS Dashboard</a>
+<noscript>กรุณาเปิด JavaScript เพื่อใช้ระบบเชื่อมต่อ</noscript>
+<small>Affiliate Intelligence Studio · Sandbox · Callback Bridge v1.1<br>หน้านี้ไม่จัดเก็บ Token หรือ Client Secret</small>
+</main>
+<script>
+(function(){
+'use strict';
+const q=new URLSearchParams(location.search);
+const status=document.getElementById('status');
+const form=document.getElementById('handoff');
+const back=document.getElementById('return');
+const code=q.get('code'),state=q.get('state');
+const hadQuery=location.search.length>0;
+try{history.replaceState(null,'',location.pathname);}catch(e){status.textContent='ไม่สามารถล้างข้อมูลตอบกลับจาก URL ได้ กรุณากลับ AIS แล้วเริ่มใหม่';return;}
+if(q.has('error')){status.textContent='การอนุญาต TikTok ไม่สำเร็จหรือถูกยกเลิก กรุณากลับ AIS แล้วเริ่มใหม่';return;}
+if(!hadQuery){status.textContent='Callback Bridge พร้อมใช้งาน — ยังไม่มีการตอบกลับจาก TikTok คุณสามารถทดสอบปุ่มกลับ AIS ได้';return;}
+if(q.getAll('code').length!==1||q.getAll('state').length!==1||!code||!state||code.length>8192||state.length>256||/[\x00-\x1f\x7f]/.test(code+state)){
+ status.textContent='ข้อมูลตอบกลับไม่สมบูรณ์ กรุณากลับ AIS แล้วเริ่มการเชื่อมต่อใหม่';return;
+}
+document.getElementById('auth-code').value=code;
+document.getElementById('auth-state').value=state;
+status.textContent='ได้รับข้อมูลตอบกลับแล้ว แต่ยังไม่ได้เชื่อมบัญชี กดดำเนินการต่อเพื่อให้ AIS ตรวจสอบสิทธิ์และแลก Token หลังติดตั้งส่วนรับข้อมูลฝั่งเซิร์ฟเวอร์แล้วเท่านั้น';
+form.hidden=false;
+back.hidden=true;
+form.addEventListener('submit',function(){document.getElementById('continue').disabled=true;status.textContent='กำลังส่งข้อมูลไปยัง AIS เพื่อตรวจสอบ';});
+window.addEventListener('pagehide',function(){document.getElementById('auth-code').value='';document.getElementById('auth-state').value='';});
+})();
+</script>
+</body>
+</html>
